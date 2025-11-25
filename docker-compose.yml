@@ -1,0 +1,47 @@
+# Levantar servicios
+# docker-compose up -d
+
+# Detener servicios
+# docker-compose down
+
+# Detener y eliminar imágenes
+# docker-compose down --rmi all
+
+
+services:
+  # Institution Microservice
+  ms-institution:
+    image: vidalluyo0/vg-ms-institution:1.0
+    container_name: ms-institution
+    ports:
+      - "9080:9080"
+    networks:
+      - assistance-network
+
+  # Student Microservice
+  ms-student:
+    image: vidalluyo0/vg-ms-students:1.0
+    container_name: ms-student
+    ports:
+      - "9081:9081"
+    networks:
+      - assistance-network
+
+  # Assistance Microservice
+  ms-assistance:
+    image: vidalluyo0/vg-ms-assistance:1.0
+    container_name: ms-assistance
+    ports:
+      - "9087:9087"
+    environment:
+      - MS_INSTITUTION=http://ms-institution:9080
+      - MS_STUDENT=http://ms-student:9081
+    depends_on:
+      - ms-institution
+      - ms-student
+    networks:
+      - assistance-network
+
+networks:
+  assistance-network:
+    driver: bridge

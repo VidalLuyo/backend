@@ -10,8 +10,7 @@
 
 ## ✅ Project Purpose
 
-This CSR initiative by our CETPRO institute delivers **free technical tutorials** and **community support** using real-world technology tools, empowering learners to build and maintain their own computer systems.
-
+This SIGEI project at our Capilla de Asia school aims to improve attendance tracking at the school
 ---
 
 ## 🛠️ Setup Instructions

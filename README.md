@@ -89,5 +89,3 @@ You **must** set these environment variables:
 
 ---
 
-**Thank you for your contributions!** 👍  
-*Let's build something meaningful together.*

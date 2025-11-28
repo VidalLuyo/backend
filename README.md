@@ -1,5 +1,4 @@
-# CETPRO Social Project – Microservicio de Asistencias
-
+# Microservice for Assistance
 ## 🔧 Project Stack
 
 - **Backend**: Java 17 + Spring Boot WebFlux

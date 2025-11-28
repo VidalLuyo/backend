@@ -73,17 +73,21 @@ You **must** set these environment variables:
 
 ---
 
-## 💡 Best Practices
+---
 
-- You **should** run `mvn test` before each commit.
-- You **should** document new endpoints in Swagger.
+## 🧩 How to Use the API (Advice with "should")
+
+- You **should** access the Swagger UI at `http://localhost:9087/swagger-ui.html` to explore all available endpoints.
+- You **should** test the API using the interactive Swagger documentation before integrating with frontend applications.
+- You **should** verify the PostgreSQL connection before performing any operations.
 
 ---
 
-## 📞 Support
+## 🎯 Future Plans (Advice & Suggestions)
 
-- **Open** an issue in this repository.
-- **Tag** `@project-lead` for urgent issues.
+- We **should** implement JWT authentication and authorization before production deployment.
+- We **should** add Redis caching layer to improve read performance for frequently accessed data.
+- We **should** implement event-driven communication using Apache Kafka or RabbitMQ.
 
 ---
 

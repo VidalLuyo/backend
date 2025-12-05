@@ -1,0 +1,44 @@
+===============================================
+DESPLIEGUE KUBERNETES - HACKATHON BACKEND
+===============================================
+
+REQUISITO: Tener Kubernetes corriendo
+- Docker Desktop con Kubernetes habilitado
+- O ejecutar: minikube start
+
+
+COMANDOS:
+---------
+
+1. Subir imagen:
+   docker login
+   docker build -t vidalluyo0/ht-232-08-vidal-luyo:1.0 .
+   docker push vidalluyo0/ht-232-08-vidal-luyo:1.0
+
+2. Desplegar:
+   kubectl apply -f manifest/vidal-namespace.yml
+   kubectl apply -f manifest/vidal-deployment.yml
+   kubectl apply -f manifest/vidal-service.yml
+
+3. Port-forward:
+   kubectl port-forward -n vidal-namespace service/vidal-service 8094:80
+
+4. Probar:
+   http://localhost:8094/v1/api/student
+
+
+COMANDOS ÚTILES:
+----------------
+Ver pods:
+   kubectl get pods -n vidal-namespace
+
+Ver logs:
+   kubectl logs -n vidal-namespace NOMBRE_POD
+
+Reiniciar:
+   kubectl rollout restart deployment vidal-deployment -n vidal-namespace
+
+Eliminar:
+   kubectl delete -f manifest/vidal-service.yml
+   kubectl delete -f manifest/vidal-deployment.yml
+   kubectl delete -f manifest/vidal-namespace.yml

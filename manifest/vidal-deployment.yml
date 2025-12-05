@@ -1,0 +1,22 @@
+# kubectl apply -f 4-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vidal-deployment
+  namespace: vidal-namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vidal-service       # Debe coincidir con las etiquetas del Service
+  template:
+    metadata:
+      labels:
+        app: vidal-service     # Debe coincidir con las etiquetas del Service
+    spec:
+      containers:
+        - name: age-detector-be
+          image: vidalluyo0/ht-232-08-vidal-luyo:1.0          # Reemplaza con tu imagen Docker Hub
+          imagePullPolicy: IfNotPresent        # Evitar traer siempre la última versión si hay una actual
+          ports:
+            - containerPort: 8093

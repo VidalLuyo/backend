@@ -20,33 +20,31 @@ minikube status
 minikube start
 ```
 
-### 2. Aplicar manifiestos
+### 2. Construir imágenes (si no están en Docker Hub)
+
+```bash
+# Backend (si tienes cambios)
+cd backend
+docker build -t vidalluyo0/vg-ms-assistance:1.0 .
+docker push vidalluyo0/vg-ms-assistance:1.0
+
+# Frontend
+cd frontend
+docker build -t vidalluyo0/vg-frontend:1.0 .
+docker push vidalluyo0/vg-frontend:1.0
+```
+
+### 3. Aplicar manifiestos
 
 ```bash
 # Ir a la carpeta manifest
 cd backend/manifest
 
-# Crear namespace
-kubectl apply -f 00-namespace.yaml
-
-# Crear secret
-kubectl apply -f 01-secret.yaml
-
-# Crear deployments
-kubectl apply -f 03-deployment-assistance.yaml
-kubectl apply -f 04-deployment-institution.yaml
-kubectl apply -f 05-deployment-students.yaml
-
-# Crear services
-kubectl apply -f 06-service-assistance.yaml
-kubectl apply -f 07-service-institution.yaml
-kubectl apply -f 08-service-students.yaml
-
-# O aplicar todo a la vez
+# Aplicar todo
 kubectl apply -f .
 ```
 
-### 3. Verificar despliegue
+### 4. Verificar despliegue
 
 ```bash
 # Ver todos los recursos
@@ -58,11 +56,14 @@ kubectl get pods -n jesus-luyo
 # Ver services
 kubectl get services -n jesus-luyo
 
-# Ver logs
+# Ver logs del backend
 kubectl logs -f deployment/vg-ms-assistance -n jesus-luyo
+
+# Ver logs del frontend
+kubectl logs -f deployment/vg-frontend -n jesus-luyo
 ```
 
-### 4. Acceder al servicio
+### 5. Acceder al servicio
 
 ```bash
 # Listar services de Minikube
@@ -80,18 +81,9 @@ kubectl port-forward service/vg-ms-assistance 8085:9087 -n jesus-luyo
 ```
 
 Acceder a:
+
 - **Frontend**: http://localhost:8080
 - **Backend**: http://localhost:8085/swagger-ui.html
-
-### 5. Probar el servicio
-
-```bash
-# Health check
-curl http://localhost:8085/actuator/health
-
-# Swagger
-curl http://localhost:8085/swagger-ui.html
-```
 
 ## Despliegue en Nube (Docker Desktop Kubernetes)
 
@@ -99,22 +91,93 @@ curl http://localhost:8085/swagger-ui.html
 
 Docker Desktop → Settings → Kubernetes → Enable Kubernetes
 
-### 2. Aplicar manifiestos
+### 2. Construir y subir imágenes
+
+```bash
+# Frontend
+cd frontend
+docker build -t vidalluyo0/vg-frontend:1.0 .
+docker push vidalluyo0/vg-frontend:1.0
+
+# Backend (si tienes cambios)
+cd backend
+docker build -t vidalluyo0/vg-ms-assistance:1.0 .
+docker push vidalluyo0/vg-ms-assistance:1.0
+```
+
+### 3. Aplicar manifiestos
 
 ```bash
 cd backend/manifest
 kubectl apply -f .
 ```
 
-### 3. Verificar
+### 4. Verificar
 
 ```bash
 kubectl get all -n jesus-luyo
 ```
 
-### 4. Acceder
+### 5. Acceder
 
-http://localhost:30087/api/attendance
+- **Frontend**: http://localhost:30080
+- **Backend**: http://localhost:30087/swagger-ui.html
+
+## Despliegue en Codespaces
+
+### 1. Construir imágenes
+
+```bash
+# Frontend
+cd frontend
+docker build -t vidalluyo0/vg-frontend:1.0 .
+docker push vidalluyo0/vg-frontend:1.0
+
+# Backend
+cd backend
+docker build -t vidalluyo0/vg-ms-assistance:1.0 .
+docker push vidalluyo0/vg-ms-assistance:1.0
+```
+
+### 2. Instalar kubectl y Minikube
+
+```bash
+# Instalar kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+# Instalar Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+chmod +x minikube-linux-amd64
+sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+
+# Iniciar Minikube
+minikube start --driver=docker
+```
+
+### 3. Aplicar manifiestos
+
+```bash
+cd backend/manifest
+kubectl apply -f .
+```
+
+### 4. Exponer servicios
+
+```bash
+# Crear túneles para acceder desde Codespaces
+kubectl port-forward service/vg-frontend 30080:80 -n jesus-luyo --address 0.0.0.0 &
+kubectl port-forward service/vg-ms-assistance 30087:9087 -n jesus-luyo --address 0.0.0.0 &
+```
+
+
+Si cambias el puerto del backend, actualiza este valor y aplica:
+
+```bash
+kubectl apply -f 09-deployment-frontend.yaml
+kubectl rollout restart deployment/vg-frontend -n jesus-luyo
+```
 
 ## Comandos útiles
 
@@ -140,9 +203,13 @@ kubectl logs nombre-pod -n jesus-luyo
 
 # Reiniciar deployment
 kubectl rollout restart deployment/vg-ms-assistance -n jesus-luyo
+kubectl rollout restart deployment/vg-frontend -n jesus-luyo
 
 # Ver estado del rollout
 kubectl rollout status deployment/vg-ms-assistance -n jesus-luyo
+
+# Escalar replicas
+kubectl scale deployment/vg-ms-assistance --replicas=3 -n jesus-luyo
 ```
 
 ## Eliminar
@@ -166,4 +233,25 @@ kubectl get events -n jesus-luyo
 
 # Ejecutar comando dentro del pod
 kubectl exec -it nombre-pod -n jesus-luyo -- sh
+
+# Ver logs en tiempo real
+kubectl logs -f deployment/vg-ms-assistance -n jesus-luyo
+
+
+kubectl set env deployment/vg-frontend API_URL=http://localhost:30087/api -n jesus-luyo
+```
+
+## Estructura de archivos
+
+```
+00-namespace.yaml              # Namespace jesus-luyo
+01-secret.yaml                 # Credenciales de la base de datos
+03-deployment-assistance.yaml  # Backend principal (2 replicas)
+04-deployment-institution.yaml # Microservicio institution (2 replicas)
+05-deployment-students.yaml    # Microservicio students (2 replicas)
+06-service-assistance.yaml     # Service backend (NodePort 30087)
+07-service-institution.yaml    # Service institution (ClusterIP)
+08-service-students.yaml       # Service students (ClusterIP)
+09-deployment-frontend.yaml    # Frontend (2 replicas)
+10-service-frontend.yaml       # Service frontend (NodePort 30080)
 ```

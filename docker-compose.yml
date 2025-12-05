@@ -42,6 +42,19 @@ services:
     networks:
       - assistance-network
 
+  # Frontend
+  frontend:
+    image: vidalluyo0/vg-frontend:1.0
+    container_name: vg-frontend
+    ports:
+      - "8080:80"
+    environment:
+      - API_URL=http://localhost:9087/api
+    depends_on:
+      - ms-assistance
+    networks:
+      - assistance-network
+
 networks:
   assistance-network:
     driver: bridge

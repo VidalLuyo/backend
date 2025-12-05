@@ -7,8 +7,32 @@ REQUISITO: Tener Kubernetes corriendo
 - O ejecutar: minikube start
 
 
-COMANDOS:
----------
+OPCION 1: DOCKER COMPOSE (LOCAL)
+---------------------------------
+
+1. Levantar servicios:
+   docker-compose up -d
+
+2. Ver estado:
+   docker-compose ps
+
+3. Probar:
+   Backend: http://localhost:8091/v1/api/student
+   Nginx: http://localhost:8092/v1/api/student
+   MySQL: localhost:3306
+
+4. Ver logs:
+   docker-compose logs -f
+
+5. Detener:
+   docker-compose down
+
+6. Detener y eliminar todo (contenedores, volumenes, imagenes):
+   docker-compose down -v --rmi all
+
+
+OPCION 2: KUBERNETES
+--------------------
 
 1. Subir imagen:
    docker login

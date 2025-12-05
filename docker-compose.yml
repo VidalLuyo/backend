@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    image: vidalluyo0/ht-232-08-vidal-luyo:1.0
+    container_name: vidal-backend
+    ports:
+      - "8091:8090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
+    networks:
+      - vidal-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: vidal-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=hackathon
+    networks:
+      - vidal-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: vidal-nginx
+    ports:
+      - "8092:80"
+    command: |
+      sh -c "echo 'events { worker_connections 1024; }
+      http {
+        upstream backend { server backend:8090; }
+        server {
+          listen 80;
+          location / {
+            proxy_pass http://backend;
+            proxy_set_header Host \$$host;
+          }
+        }
+      }' > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - backend
+    networks:
+      - vidal-network
+
+networks:
+  vidal-network:
+    driver: bridge

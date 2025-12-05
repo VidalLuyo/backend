@@ -6,9 +6,9 @@ spring:
     name: vg-ms-assistance
 
   r2dbc:
-    url: r2dbc:postgresql://ep-icy-tree-a4b64iqg-pooler.us-east-1.aws.neon.tech:5432/assistance?sslmode=require
-    username: neondb_owner
-    password: npg_RitqK8seGb5f
+    url: ${DB_URL:r2dbc:postgresql://ep-icy-tree-a4b64iqg-pooler.us-east-1.aws.neon.tech:5432/assistance?sslmode=require}
+    username: ${DB_USERNAME:neondb_owner}
+    password: ${DB_PASSWORD:npg_RitqK8seGb5f}
     pool:
       initial-size: 5
       max-size: 20
